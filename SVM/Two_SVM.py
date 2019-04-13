@@ -1,14 +1,12 @@
 from numpy import *
 import time
 import matplotlib.pyplot as plt 
-
-"""
-SVM的SMO算法
-"""
+ 
+ 
 # 计算核值
 def calcKernelValue(matrix_x, sample_x, kernelOption):
-	kernelType  = kernelOption[0]
-	numSamples  = matrix_x.shape[0]
+	kernelType = kernelOption[0]
+	numSamples = matrix_x.shape[0]
 	kernelValue = mat(zeros((numSamples, 1)))
 	
 	if kernelType == 'linear':
@@ -67,7 +65,7 @@ def selectAlpha_j(svm, alpha_i, error_i):
 	svm.errorCache[alpha_i] = [1, error_i] # 标记为有效(已优化)
 	candidateAlphaList = nonzero(svm.errorCache[:, 0].A)[0] # mat.A返回array
 	maxStep = 0; alpha_j = 0; error_j = 0
-
+ 
 	# 求迭代步长的最大值
 	if len(candidateAlphaList) > 1:
 		for alpha_k in candidateAlphaList:
@@ -159,7 +157,7 @@ def innerLoop(svm, alpha_i):
 			svm.b = b2
 		else:
 			svm.b = (b1 + b2) / 2.0
-
+ 
 		# step 9: 在优化alpha_i,alpha_j和b之后更新alpha_i,alpha_j的误差
 		updateError(svm, alpha_j)
 		updateError(svm, alpha_i)
@@ -215,7 +213,7 @@ def trainSVM(train_x, train_y, C, toler, maxIter, kernelOption = ('rbf', 1.0)):
 def testSVM(svm, test_x, test_y):
 	test_x = mat(test_x)
 	test_y = mat(test_y)
-	numTestSamples      = test_x.shape[0]
+	numTestSamples = test_x.shape[0]
 	supportVectorsIndex = nonzero(svm.alphas.A > 0)[0]
 	supportVectors 		= svm.train_x[supportVectorsIndex]
 	supportVectorLabels = svm.train_y[supportVectorsIndex]
@@ -268,27 +266,27 @@ import SVM
 ## step 1: load data
 print ("step 1: load data...")
 dataSet = []
-labels  = []
-fileIn  = open('E:\\imok\\work\\CSP\\SVM\\testSet.txt')
+labels = []
+fileIn = open('E:\\imok\\work\\CSP\\SVM\\testSet.txt')
 for line in fileIn.readlines():
 	lineArr = line.strip().split('\t')
 	dataSet.append([float(lineArr[0]), float(lineArr[1])])
 	labels.append(float(lineArr[2]))
  
 dataSet = mat(dataSet)
-labels  = mat(labels).T
+labels = mat(labels).T
 train_x = dataSet[0:81, :]
 train_y = labels[0:81, :]
-test_x  = dataSet[80:101, :]
-test_y  = labels[80:101, :]
+test_x = dataSet[80:101, :]
+test_y = labels[80:101, :]
  
 ## step 2: training...
 print ("step 2: training...")
 C = 0.6
-toler   = 0.001
+toler = 0.001
 maxIter = 50
 svmClassifier = SVM.trainSVM(train_x, train_y, C, toler, maxIter, kernelOption = ('linear', 0))
-
+ 
 ## step 3: testing
 print ("step 3: testing...")
 accuracy = SVM.testSVM(svmClassifier, test_x, test_y)
