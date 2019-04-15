@@ -27,7 +27,7 @@ def calcKernelValue(matrix_x, sample_x, kernelOption):
  
 # 计算给定的数据集和核类型的核矩阵
 def calcKernelMatrix(train_x, kernelOption):
-	numSamples = train_x.shape[0]
+	numSamples   = train_x.shape[0]
 	kernelMatrix = mat(zeros((numSamples, numSamples)))
 	for i in range(numSamples):
 		kernelMatrix[:, i] = calcKernelValue(train_x, train_x[i, :], kernelOption)
@@ -52,7 +52,7 @@ class SVMStruct:
 # 计算alpha_k的误差
 def calcError(svm, alpha_k):
 	output_k = float(multiply(svm.alphas, svm.train_y).T * svm.kernelMat[:, alpha_k] + svm.b)
-	error_k = output_k - float(svm.train_y[alpha_k])
+	error_k  = output_k - float(svm.train_y[alpha_k])
 	return error_k
  
  
@@ -262,14 +262,14 @@ def showSVM(svm):
 
 
 from numpy import *
-import SVM
+import Two_SVM_CSP
 
 ################## test svm #####################
 ## step 1: load data
-print ("step 1: load data...")
+print("step 1: load data...")
 dataSet = []
 labels  = []
-fileIn  = open('E:\\imok\\work\\CSP\\SVM\\testSet.txt')
+fileIn  = open('E:\\imok\\work\\CSP\\CSP\\SVM\\testSet.txt')
 for line in fileIn.readlines():
 	lineArr = line.strip().split('\t')
 	dataSet.append([float(lineArr[0]), float(lineArr[1])])
@@ -283,14 +283,14 @@ test_x  = dataSet[80:101, :]
 test_y  = labels[80:101, :]
  
 ## step 2: training...
-print ("step 2: training...")
+print("step 2: training...")
 C = 0.6
 toler   = 0.001
 maxIter = 50
 svmClassifier = SVM.trainSVM(train_x, train_y, C, toler, maxIter, kernelOption = ('linear', 0))
 
 ## step 3: testing
-print ("step 3: testing...")
+print("step 3: testing...")
 accuracy = SVM.testSVM(svmClassifier, test_x, test_y)
  
 ## step 4: show the result

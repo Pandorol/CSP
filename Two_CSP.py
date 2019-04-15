@@ -63,11 +63,12 @@ def two_csp(EEG_X1, EEG_X2, kind = 2):
     Giv = EEG_X_white_Vecs[:, Id[0]:Id[num_channel - 1] + 1]
 
     # 此处利用中位数来分割两个特征
-    Ip = np.where(sort_vals > np.median(sort_vals))[0][0]
+    # Ip = np.where(sort_vals > np.median(sort_vals))[0][0]
 
     # 特征向量分割
-    U1 = Giv[:, 0:Ip]
-    U2 = Giv[:, Ip:num_channel]
+    d = int(num_channel/2-0.1)
+    U1 = Giv[:, 0:d+1]
+    U2 = Giv[:, d:num_channel]
 
     ## 计算空间滤波器
     EEG_X1_Fsp = np.dot(U1.H, white)
@@ -80,11 +81,52 @@ def two_csp(EEG_X1, EEG_X2, kind = 2):
     return EEG_X1_Fsp, EEG_X2_Fsp, EEG_S1, EEG_S2
 
 
+def test_set(EEG_X1, EEG_X2, EEG_X1_Fsp, EEG_X2_Fsp):
+    """
+    此函数对数据进行处理，得到测试集
+    输入： EEG_X1_Fsp, EEG_X2_Fsp：过滤器
+          EEG_X1, EEG_X2：观测到的信号
+    输出：Vector_sort:测试集
+          Labels：对应的标签
+    """
+
+    # 计算源分量，并计算对应的特征向量
+    EEG_S11 = np.dot(EEG_X1_Fsp, EEG_X1)
+    EEG_S12 = np.dot(EEG_X2_Fsp, EEG_X1)
+    EEG_S21 = np.dot(EEG_X1_Fsp, EEG_X2)
+    EEG_S22 = np.dot(EEG_X2_Fsp, EEG_X2)
+   
+    # 计算方差
+    num_channel, num_samples = EEG_S11.shape      # num_channel代表通道，num_samples代表总样本数量
+    EEG_S11_Vars = np.zeros((num_channel, 1))
+    EEG_S12_Vars = np.zeros((num_channel, 1))
+    EEG_S21_Vars = np.zeros((num_channel, 1))
+    EEG_S22_Vars = np.zeros((num_channel, 1))
+    for k in range(num_channel):
+        EEG_S11_Vars[k,1] = np.var(EEG_S11[k,:])
+        EEG_S12_Vars[k,1] = np.var(EEG_S12[k,:])
+        EEG_S21_Vars[k,1] = np.var(EEG_S21[k,:])
+        EEG_S22_Vars[k,1] = np.var(EEG_S22[k,:])
+
+    # 归一化处理，特征向量计算
+    EEG_S1_Vars = EEG_S11_Vars + EEG_S12_Vars
+    EEG_S2_Vars = EEG_S21_Vars + EEG_S22_Vars
+    Vector      = np.zeros((num_channel*2, 2))
+    
+    Vector[0:num_channel, 1]             = np.log(EEG_S11_Vars/EEG_S1_Vars)
+    Vector[0:num_channel, 2]             = np.log(EEG_S12_Vars/EEG_S1_Vars)
+    Vector[num_channel:num_channel*2, 1] = np.log(EEG_S11_Vars/EEG_S1_Vars)
+    Vector[num_channel:num_channel*2, 2] = np.log(EEG_S11_Vars/EEG_S1_Vars)
+
+    # 对应的标签矩阵
+    '''1代表第一类，-1代表第二类'''
+    Labels = np.zeros((num_channel*2, 1))
+    Labels[0:num_channel, 1]             = 1
+    Labels[num_channel:num_channel*2, 1] = -1
+
+    return Vector, Labels
+
 # import mne
 # from mne.io import concatenate_raws, read_raw_edf
 # EEG_X1 = read_raw_edf('C:\\Users\\Administrator\\Desktop\\S001R01.edf', preload=True, stim_channel='auto').to_data_frame().values.transpose()
 # EEG_X2 = read_raw_edf('C:\\Users\\Administrator\\Desktop\\S001R02.edf', preload=True, stim_channel='auto').to_data_frame().values.transpose()
-# two_csp(EEG_X1, EEG_X2)
-# EEG_X1 = np.random.rand(5,100)
-# EEG_X2 = np.random.rand(5,100)
-# two_csp(EEG_X1, EEG_X2)

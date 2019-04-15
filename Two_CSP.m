@@ -15,7 +15,7 @@ function [EEG_S1, EEG_S2] = Two_CSP(EEG_X1, EEG_X2)
 % 输出 :
 %     EEG_S1, EEG_S2分别是是一个 n×T 的原始(即pinv(A)×x)估计源信号
 %**************************************************************************
-kind = 2; % 两类任务
+kind   = 2;  % 两类任务
 [n, T] = size(EEG_X1);
 t = 1:T;
 %% 零均值
@@ -47,7 +47,7 @@ for k = 1:n
     AD(k) = DD(iq(k), iq(k));
     Giv(:, k) = UU(:,iq(k));
 end
-x = find(AD >= median(AD));
+x  = find(AD >= median(AD));
 il = x(1);
 for k = 1:il
     U1(:, k) = Giv(:, k);
