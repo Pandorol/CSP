@@ -267,20 +267,17 @@ import Two_SVM_CSP
 ################## test svm #####################
 ## step 1: load data
 print("step 1: load data...")
-dataSet = []
-labels  = []
-fileIn  = open('E:\\imok\\work\\CSP\\CSP\\SVM\\testSet.txt')
-for line in fileIn.readlines():
-	lineArr = line.strip().split('\t')
-	dataSet.append([float(lineArr[0]), float(lineArr[1])])
-	labels.append(float(lineArr[2]))
- 
-dataSet = mat(dataSet)
-labels  = mat(labels).T
-train_x = dataSet[0:81, :]
-train_y = labels[0:81, :]
-test_x  = dataSet[80:101, :]
-test_y  = labels[80:101, :]
+dataSet = mat(Vector)
+labels  = mat(Labels).T
+train_indices = np.random.choice(len(Vector),
+                                 round(len(Vector)*0.8),
+                                 replace=False)
+test_indices = np.array(list(set(range(len(Vector))) - set(train_indices)))
+
+train_x = dataSet[train_indices]
+train_y = labels[train_indices]
+test_x  = dataSet[test_indices]
+test_y  = labels[test_indices]
  
 ## step 2: training...
 print("step 2: training...")
