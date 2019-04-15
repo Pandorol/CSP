@@ -21,7 +21,9 @@ def mulity_csp(EEG_X, kind):
     """
 
     EEG_X = np.mat(np.array(EEG_X, dtype=np.complex128))
-    num_channel, num_samples = EEG_X.shape      # num_channel代表通道，num_samples代表总样本数量
+
+    # num_channel代表通道，num_samples代表总样本数量
+    num_channel, num_samples = EEG_X.shape
     num_samples = int(num_samples/kind)
 
     channel = range(num_channel)
@@ -101,7 +103,7 @@ def mulity_csp(EEG_X, kind):
             amin += np.sum(abs(EEG_M_diag[:, k*num_channel:(k+1)*num_channel])**2) - np.sum(abs(np.diag(EEG_M_diag[:, k*num_channel:(k+1)*num_channel]))**2)
         print(amin)
 
-    '特征选取'
+    '''特征选取'''
 
     ## 计算空间滤波器
     Fsp = np.dot(np.mat(Giv).H, white)
@@ -142,15 +144,16 @@ def test_set(X_Fsp, EEG_X, d, kind):
           Labels：对应的标签
     """
 
-    num_channel, num_samples = EEG_X.shape      # num_channel代表通道，num_samples代表总样本数量
+    # num_channel代表通道，num_samples代表总样本数量
+    num_channel, num_samples = EEG_X.shape
     num_samples              = int(num_samples/kind)
-    
+
     # 计算源分量，并计算对应的特征向量
     EEG_S = np.zeros((d, num_samples*kind*kind))
     for k in range(kind):
         for l in range(kind):
             EEG_S[:, (kind*k+l)*num_samples:(kind*k+l+1)*num_samples] = X_Fsp[:, l*num_channel:(l+1)*num_channel]*EEG_X[:, k*num_samples:(k+1)*num_samples]
-    
+
     # 计算方差
     EEG_S_Vars = np.zeros((d, kind*kind))
     for k in range(kind):
@@ -170,7 +173,8 @@ def test_set(X_Fsp, EEG_X, d, kind):
 
     # 对应的标签矩阵
     """
-    标签矩阵是一个d × kind*kind的矩阵，每kind列一个单位，为一个类，对应行为标注为1，其余为-1
+        标签矩阵是一个d × kind*kind的矩阵，每kind列一个单位，
+        为一个类，对应行为标注为1，其余为-1
     """
     Labels = np.zeros((d, kind*kind))
     for k in range(kind):

@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def two_csp(EEG_X1, EEG_X2, kind = 2):
     """
     针对两类 CSP问题
@@ -20,7 +21,8 @@ def two_csp(EEG_X1, EEG_X2, kind = 2):
 
     EEG_X1 = np.mat(np.array(EEG_X1, dtype=np.complex128))
     EEG_X2 = np.mat(np.array(EEG_X2, dtype=np.complex128))
-    num_channel, num_samples = EEG_X1.shape      # num_channel代表通道，num_samples代表总样本数量
+    # num_channel代表通道，num_samples代表总样本数量
+    num_channel, num_samples = EEG_X1.shape
     channel = range(num_channel)
     samples = range(num_samples)
 
@@ -35,8 +37,10 @@ def two_csp(EEG_X1, EEG_X2, kind = 2):
     ## 白化处理
 
     # 计算各自的的协方差矩阵; 并计算混合协方差矩阵
-    EEG_X1_cov = np.dot(EEG_X1_zeros, np.mat(EEG_X1_zeros).H) / np.trace(np.dot(EEG_X1_zeros, np.mat(EEG_X1_zeros).H))
-    EEG_X2_cov = np.dot(EEG_X2_zeros, np.mat(EEG_X1_zeros).H) / np.trace(np.dot(EEG_X2_zeros, np.mat(EEG_X1_zeros).H))
+    EEG_X1_cov = np.dot(EEG_X1_zeros, np.mat(EEG_X1_zeros).H)/np.trace(
+        np.dot(EEG_X1_zeros, np.mat(EEG_X1_zeros).H))
+    EEG_X2_cov = np.dot(EEG_X2_zeros, np.mat(EEG_X1_zeros).H)/np.trace(
+        np.dot(EEG_X2_zeros, np.mat(EEG_X1_zeros).H))
 
     EEG_X_mixcov = EEG_X1_cov + EEG_X2_cov
     EEG_X_mixcov = EEG_X_mixcov / kind
@@ -95,38 +99,44 @@ def test_set(EEG_X1, EEG_X2, EEG_X1_Fsp, EEG_X2_Fsp):
     EEG_S12 = np.dot(EEG_X2_Fsp, EEG_X1)
     EEG_S21 = np.dot(EEG_X1_Fsp, EEG_X2)
     EEG_S22 = np.dot(EEG_X2_Fsp, EEG_X2)
-   
+
     # 计算方差
-    num_channel, num_samples = EEG_S11.shape      # num_channel代表通道，num_samples代表总样本数量
+    # num_channel代表通道，num_samples代表总样本数量
+    num_channel, num_samples = EEG_S11.shape
     EEG_S11_Vars = np.zeros((num_channel, 1))
     EEG_S12_Vars = np.zeros((num_channel, 1))
     EEG_S21_Vars = np.zeros((num_channel, 1))
     EEG_S22_Vars = np.zeros((num_channel, 1))
     for k in range(num_channel):
-        EEG_S11_Vars[k,1] = np.var(EEG_S11[k,:])
-        EEG_S12_Vars[k,1] = np.var(EEG_S12[k,:])
-        EEG_S21_Vars[k,1] = np.var(EEG_S21[k,:])
-        EEG_S22_Vars[k,1] = np.var(EEG_S22[k,:])
+        EEG_S11_Vars[k, 0] = np.var(EEG_S11[k, :])
+        EEG_S12_Vars[k, 0] = np.var(EEG_S12[k, :])
+        EEG_S21_Vars[k, 0] = np.var(EEG_S21[k, :])
+        EEG_S22_Vars[k, 0] = np.var(EEG_S22[k, :])
 
     # 归一化处理，特征向量计算
     EEG_S1_Vars = EEG_S11_Vars + EEG_S12_Vars
     EEG_S2_Vars = EEG_S21_Vars + EEG_S22_Vars
     Vector      = np.zeros((num_channel*2, 2))
-    
-    Vector[0:num_channel, 1]             = np.log(EEG_S11_Vars/EEG_S1_Vars)
-    Vector[0:num_channel, 2]             = np.log(EEG_S12_Vars/EEG_S1_Vars)
-    Vector[num_channel:num_channel*2, 1] = np.log(EEG_S11_Vars/EEG_S1_Vars)
-    Vector[num_channel:num_channel*2, 2] = np.log(EEG_S11_Vars/EEG_S1_Vars)
+
+    Vector[0:num_channel, 0]             = np.log(EEG_S11_Vars/EEG_S1_Vars)
+    Vector[0:num_channel, 1]             = np.log(EEG_S12_Vars/EEG_S1_Vars)
+    Vector[num_channel:num_channel*2, 0] = np.log(EEG_S21_Vars/EEG_S2_Vars)
+    Vector[num_channel:num_channel*2, 1] = np.log(EEG_S22_Vars/EEG_S2_Vars)
+
 
     # 对应的标签矩阵
-    '''1代表第一类，-1代表第二类'''
+    '''
+    1代表第一类，-1代表第二类
+    '''
     Labels = np.zeros((num_channel*2, 1))
-    Labels[0:num_channel, 1]             = 1
-    Labels[num_channel:num_channel*2, 1] = -1
+    Labels[0:num_channel, 0]             = 1
+    Labels[num_channel:num_channel*2, 0] = -1
 
     return Vector, Labels
 
 # import mne
 # from mne.io import concatenate_raws, read_raw_edf
-# EEG_X1 = read_raw_edf('C:\\Users\\Administrator\\Desktop\\S001R01.edf', preload=True, stim_channel='auto').to_data_frame().values.transpose()
-# EEG_X2 = read_raw_edf('C:\\Users\\Administrator\\Desktop\\S001R02.edf', preload=True, stim_channel='auto').to_data_frame().values.transpose()
+# EEG_X1 = read_raw_edf('C:\\Users\\Administrator\\Desktop\\S001R01.edf',
+#     preload=True, stim_channel='auto').to_data_frame().values.transpose()
+# EEG_X2 = read_raw_edf('C:\\Users\\Administrator\\Desktop\\S001R02.edf',
+#     preload=True, stim_channel='auto').to_data_frame().values.transpose()
